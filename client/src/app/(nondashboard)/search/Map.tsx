@@ -18,29 +18,45 @@ const Map = () => {
   } = useGetPropertiesQuery(filters);
 
   useEffect(() => {
-    if (isLoading || isError || !properties) return;
+  if (isLoading || isError || !properties) return;
 
-    const map = new mapboxgl.Map({
-      container: mapContainerRef.current!,
-      style: "mapbox://styles/vicky187/cm9i7szqz00p701s72j0x3l6a",
-      center: filters.coordinates || [-74.5, 40],
-      zoom: 9,
-    });
+  // Validate coordinates properly
+  const validCoordinates = Array.isArray(filters.coordinates) &&
+    filters.coordinates.length === 2 &&
+    typeof filters.coordinates[0] === "number" &&
+    typeof filters.coordinates[1] === "number" &&
+    filters.coordinates[1] >= -90 &&
+    filters.coordinates[1] <= 90 &&
+    filters.coordinates[0] >= -180 &&
+    filters.coordinates[0] <= 180;
 
-    properties.forEach((property) => {
-      const marker = createPropertyMarker(property, map);
-      const markerElement = marker.getElement();
-      const path = markerElement.querySelector("path[fill='#3FB1CE']");
-      if (path) path.setAttribute("fill", "#000000");
-    });
+  const centerCoordinates: [number, number] = validCoordinates
+    ? [filters.coordinates[0], filters.coordinates[1]] as [number, number]
+    : [-74.5, 40];
 
-    const resizeMap = () => {
-      if (map) setTimeout(() => map.resize(), 700);
-    };
-    resizeMap();
+  const map = new mapboxgl.Map({
+    container: mapContainerRef.current!,
+    style: "mapbox://styles/vicky187/cm9i7szqz00p701s72j0x3l6a",
+    center: centerCoordinates,
+    zoom: 9,
+  });
 
-    return () => map.remove();
-  }, [isLoading, isError, properties, filters.coordinates]);
+  properties.forEach((property) => {
+    const marker = createPropertyMarker(property, map);
+    const markerElement = marker.getElement();
+    const path = markerElement.querySelector("path[fill='#3FB1CE']");
+    if (path) path.setAttribute("fill", "#000000");
+  });
+
+  const resizeMap = () => {
+    if (map) setTimeout(() => map.resize(), 700);
+  };
+  resizeMap();
+
+  return () => map.remove();
+}, [isLoading, isError, properties, filters.coordinates]);
+
+  
 
   if (isLoading) return <>Loading...</>;
   if (isError || !properties) return <div>Failed to fetch properties</div>;

@@ -28,7 +28,7 @@ const HeroSection = () => {
       );
       const data = await response.json();
       if (data.features && data.features.length > 0) {
-        const [lng, lat] = data.features[0].center;
+        const [lat, lng] = data.features[0].center;
         dispatch(
           setFilters({
             location: trimmedQuery,
