@@ -1,1 +1,27 @@
 
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - cd client
+        - npm ci
+    build:
+      commands:
+        - npm run build
+  artifacts:
+    baseDirectory: client/.next
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - client/node_modules/**/*
+backend:
+  phases:
+    preDeploy:
+      commands:
+        - cd server
+        - npm ci
+    deploy:
+      commands:
+        - npx amplify push --yes
