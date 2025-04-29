@@ -16,12 +16,3 @@ applications:
       cache:
         paths:
           - node_modules/**/*
-  - appRoot: server
-    backend:
-      phases:
-        preDeploy:
-          commands:
-            - npm ci
-        deploy:
-          commands:
-            - npx amplify push --yes
